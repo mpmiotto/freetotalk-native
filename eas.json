@@ -1,0 +1,92 @@
+{
+  "cli": {
+    "version": ">= 3.13.3",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "resourceClass": "medium",
+        "buildType": "apk"
+      }
+    },
+    "store": {
+      "distribution": "store",
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "resourceClass": "medium",
+        "buildType": "app-bundle",
+        "credentialsSource": "remote"
+      }
+    },
+    "internal": {
+      "distribution": "internal",
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "resourceClass": "medium",
+        "buildType": "app-bundle",
+        "credentialsSource": "remote"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "ios": {
+        "resourceClass": "m-medium",
+        "image": "macos-sonoma-14.6-xcode-16.1"
+      },
+      "android": {
+        "resourceClass": "medium",
+        "buildType": "app-bundle",
+        "credentialsSource": "remote"
+      },
+      "channel": "release-candidate"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "6744858216"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production"
+      }
+    },
+    "store": {
+      "ios": {
+        "ascAppId": "6744858216"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production"
+      }
+    },
+    "internal": {
+      "ios": {
+        "ascAppId": "6744858216"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      }
+    },
+    "preview": {
+      "ios": {
+        "ascAppId": "6744858216"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      }
+    }
+  }
+}

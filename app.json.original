@@ -1,0 +1,76 @@
+{
+  "expo": {
+    "name": "I'm Free",
+    "slug": "imfreeapp",
+    "metro": "./metro.config.cjs",
+    "version": "1.1.6",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4CAF50"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mmiotto.freetotalk",
+      "buildNumber": "155",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "NSContactsUsageDescription": "We need access to your contacts to help you find your friends who are using I'm Free.",
+        "NSPhoneUsageDescription": "The app detects when you're on a call to automatically update your availability status.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "jsEngine": "hermes",
+      "minIOSVersion": "16.0"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4CAF50"
+      },
+      "package": "com.mmiotto.freetotalk",
+      "versionCode": 155,
+      "permissions": [
+        "NOTIFICATIONS",
+        "READ_CONTACTS",
+        "READ_PHONE_STATE"
+      ],
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f5a3dc10-b9c3-45dc-810a-cab1cacec0c5"
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications"
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "We need access to your contacts to help you find your friends who are using I'm Free."
+        }
+      ]
+    ],
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f5a3dc10-b9c3-45dc-810a-cab1cacec0c5",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD"
+    }
+  }
+}

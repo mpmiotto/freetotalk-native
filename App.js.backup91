@@ -1,0 +1,208 @@
+import React, { useEffect, useState, useRef } from 'react';
+import { SafeAreaView, StyleSheet, AppState, Platform } from 'react-native';
+import { WebView } from 'react-native-webview';
+import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+export default function App() {
+  const webViewRef = useRef(null);
+  const [appVersion] = useState('1.4.0');
+  const [buildNumber] = useState(91);
+  
+  // State for foreground detection (no listeners yet)
+  const [appState, setAppState] = useState(AppState.currentState);
+  const [backgroundTime, setBackgroundTime] = useState(null);
+
+  // Register for push notifications on app start
+  const registerForPushNotifications = async () => {
+    try {
+      console.log('Starting push notification registration...');
+      
+      // Check if device supports notifications
+      if (!Constants.isDevice) {
+        console.log('Push notifications only work on physical devices');
+        return null;
+      }
+
+      // Check existing permissions
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      // Request permissions if not granted
+      if (existingStatus !== 'granted') {
+        console.log('Requesting notification permissions...');
+        const { status } = await Notifications.requestPermissionsAsync({
+          ios: {
+            allowAlert: true,
+            allowBadge: true,
+            allowSound: true,
+            allowDisplayInCarPlay: true,
+            allowCriticalAlerts: false,
+            provideAppNotificationSettings: true,
+            allowProvisional: false,
+            allowAnnouncements: true,
+          },
+        });
+        finalStatus = status;
+      }
+
+      if (finalStatus !== 'granted') {
+        console.log('Notification permission denied');
+        return null;
+      }
+
+      // Get push token
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+      if (!projectId) {
+        console.warn('No project ID found in config');
+        return null;
+      }
+
+      const expoPushToken = await Notifications.getExpoPushTokenAsync({
+        projectId: projectId,
+      });
+
+      const token = expoPushToken.data;
+      console.log('Push token obtained:', token.substring(0, 20) + '...');
+      
+      // Save token locally
+      await AsyncStorage.setItem('pushToken', token);
+      
+      return token;
+    } catch (error) {
+      console.error('Error registering for push notifications:', error);
+      return null;
+    }
+  };
+
+  const getWebViewUrl = () => {
+    const baseUrl = 'https://freetotalk.replit.app';
+    const params = new URLSearchParams({
+      version: appVersion,
+      build: buildNumber.toString(),
+      platform: Platform.OS,
+      timestamp: Date.now().toString()
+    });
+    return `${baseUrl}?${params.toString()}`;
+  };
+
+  const handleWebViewMessage = (event) => {
+    try {
+      const data = event.nativeEvent.data;
+      console.log('WebView message:', data);
+      
+      if (data === 'GET_PHONE_NUMBER') {
+        webViewRef.current?.postMessage('');
+      }
+      
+      // Handle notification permission check
+      if (data === 'checkNotificationPermissions') {
+        console.log('Checking notification permissions...');
+        Notifications.getPermissionsAsync()
+          .then(({ status, granted, canAskAgain }) => {
+            console.log(`Notification permission status: ${status}, granted: ${granted}`);
+            
+            const response = {
+              type: 'NOTIFICATION_PERMISSION_RESULT',
+              granted: granted,
+              canAskAgain: canAskAgain,
+              status: status
+            };
+            
+            webViewRef.current?.injectJavaScript(`
+              document.dispatchEvent(new CustomEvent('notificationPermissionReceived', {
+                detail: ${JSON.stringify(response)}
+              }));
+            `);
+          })
+          .catch(error => {
+            console.error('Error checking notification permissions:', error);
+          });
+      }
+      
+      // Handle TEST_CRASH for crash testing
+      if (data && typeof data === 'string' && data.includes('TEST_CRASH')) {
+        const parsedData = JSON.parse(data);
+        if (parsedData && parsedData.type === 'TEST_CRASH') {
+          console.log('Test crash triggered from web interface');
+          const testCrashData = {
+            message: 'Test SIGABRT crash simulation from web',
+            name: 'WebTestError',
+            isFatal: true,
+            timestamp: new Date().toISOString(),
+            errorType: 'WEB_TRIGGERED_CRASH',
+            buildNumber: 86,
+            stack: 'WebTestError: Test crash from web interface\n    at testCrash (Home.tsx)\n    at React Native Bridge\n    at ExceptionsManagerQueue',
+            source: 'Web Interface Test'
+          };
+          
+          AsyncStorage.setItem('last_crash_error', JSON.stringify(testCrashData))
+            .then(() => {
+              console.log('Test crash data stored');
+              // Force app restart would go here in full implementation
+            })
+            .catch(err => {
+              console.log('Error storing test data:', err.message);
+            });
+        }
+      }
+    } catch (error) {
+      console.log('Error handling WebView message:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    console.log('App component mounted - Build 91');
+    
+    // Register for push notifications on mount
+    registerForPushNotifications();
+    
+    const handleAppStateChange = (nextAppState) => {
+      console.log('App state changed to:', nextAppState);
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription?.remove();
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
+      <WebView
+        ref={webViewRef}
+        source={{ uri: getWebViewUrl() }}
+        style={styles.webview}
+        onMessage={handleWebViewMessage}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.log('WebView error:', nativeEvent.description);
+        }}
+        onLoadStart={() => console.log('WebView load started')}
+        onLoadEnd={() => console.log('WebView load completed')}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+        scalesPageToFit={true}
+        allowsInlineMediaPlayback={true}
+        mediaPlaybackRequiresUserAction={false}
+        allowsFullscreenVideo={false}
+        originWhitelist={['*']}
+        mixedContentMode="compatibility"
+        userAgent={`FreeToTalk/${appVersion} (${Platform.OS}; Build ${buildNumber})`}
+        onShouldStartLoadWithRequest={() => true}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#002952',
+  },
+  webview: {
+    flex: 1,
+  },
+});

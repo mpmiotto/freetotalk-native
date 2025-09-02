@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "855560661215",
+    "project_id": "free-to-talk-8e168",
+    "storage_bucket": "free-to-talk-8e168.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855560661215:android:5ea0f2bb23c1669873a16a",
+        "android_client_info": {
+          "package_name": "com.mmiotto.androidfreetotalk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcMRGhL53e_GiAe9Pbl62CtxLNw7hb2N8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855560661215:android:20afbcb1ba9d744073a16a",
+        "android_client_info": {
+          "package_name": "com.mmiotto.freetotalk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcMRGhL53e_GiAe9Pbl62CtxLNw7hb2N8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
