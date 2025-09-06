@@ -1,0 +1,621 @@
+openapi: 3.0.3
+info:
+  title: Free to Talk Backend API
+  version: 1.4.4
+  description: >
+    Complete API specification for the Free to Talk backend server.
+    This documents all endpoints, schemas, and authentication flows exactly as implemented.
+    
+    **Authentication:** Session-based with phone number verification
+    
+    **Base URLs:**
+    - Development: `https://*.replit.dev`
+    - Production: `https://freetotalk.replit.app`
+    
+    **Version Control:** Mobile apps must include `version` and `platform` query parameters
+    
+servers:
+  - url: https://freetotalk.replit.app
+    description: Production server
+  - url: https://{subdomain}.replit.dev
+    description: Development server
+    variables:
+      subdomain:
+        default: 5c03849b-9612-4698-bb85-741691ac2017-00-19y9wfidmrpgj.kirk
+
+paths:
+  # Authentication Endpoints
+  /api/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: Register a new user with phone number and name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              phoneNumber: "3135854620"
+              name: "John Doe"
+              deviceId: "device123"
+              inviterPhoneNumber: "2485551234"
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Validation error or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Phone number already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user with phone number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              phoneNumber: "3135854620"
+              deviceId: "device123"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      tags: [Authentication]
+      summary: User logout
+      description: Destroy user session
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
+  /api/auth/phone-exists:
+    get:
+      tags: [Authentication]
+      summary: Check if phone number is registered
+      parameters:
+        - name: phoneNumber
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "3135854620"
+      responses:
+        '200':
+          description: Phone number check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                  phoneNumber:
+                    type: string
+
+  # User Management
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      description: Get authenticated user's profile information
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/availability:
+    put:
+      tags: [Users]
+      summary: Update user availability
+      description: Update current user's availability status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isAvailable:
+                  type: boolean
+                  description: Whether user is available
+                availableUntil:
+                  type: string
+                  format: date-time
+                  description: When availability expires (optional)
+                notifyFriends:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of friend IDs to notify (optional)
+            example:
+              isAvailable: true
+              availableUntil: "2025-01-06T18:00:00.000Z"
+              notifyFriends: [20, 135, 136]
+      responses:
+        '200':
+          description: Availability updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Not authenticated
+
+  /api/users/scheduled-events:
+    get:
+      tags: [Users]
+      summary: Get user's scheduled events
+      responses:
+        '200':
+          description: List of scheduled events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduledEvent'
+    post:
+      tags: [Users]
+      summary: Create scheduled event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduledEventRequest'
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledEvent'
+
+  /api/users/scheduled-events/{id}:
+    delete:
+      tags: [Users]
+      summary: Delete scheduled event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Event deleted
+        '404':
+          description: Event not found
+
+  # Friends Management
+  /api/friends:
+    get:
+      tags: [Friends]
+      summary: Get user's friends list
+      description: Get all friends with their current availability status
+      responses:
+        '200':
+          description: Friends list with status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  friends:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FriendWithStatus'
+                  incomingRequests:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FriendWithStatus'
+
+  /api/friends/invite:
+    post:
+      tags: [Friends]
+      summary: Invite friend
+      description: Send friend invitation via SMS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                  description: Friend's phone number
+                name:
+                  type: string
+                  description: Friend's display name
+              required: [phoneNumber, name]
+            example:
+              phoneNumber: "2485551234"
+              name: "Jane Smith"
+      responses:
+        '200':
+          description: Invitation sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  invited:
+                    type: boolean
+                  existingUser:
+                    type: boolean
+
+  /api/friends/{id}:
+    delete:
+      tags: [Friends]
+      summary: Remove friend
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: Friend relationship ID
+      responses:
+        '200':
+          description: Friend removed
+        '404':
+          description: Friend not found
+    patch:
+      tags: [Friends]
+      summary: Update friend details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                photoUrl:
+                  type: string
+      responses:
+        '200':
+          description: Friend updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendWithStatus'
+
+  # Push Notifications
+  /api/push/register:
+    post:
+      tags: [Push Notifications]
+      summary: Register push token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Expo push token
+                deviceId:
+                  type: string
+                  description: Unique device identifier
+                platform:
+                  type: string
+                  enum: [ios, android]
+              required: [token, deviceId, platform]
+      responses:
+        '200':
+          description: Token registered successfully
+
+  /api/push/unregister:
+    post:
+      tags: [Push Notifications]
+      summary: Unregister push token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                deviceId:
+                  type: string
+      responses:
+        '200':
+          description: Token unregistered
+
+  # System
+  /api/system/version:
+    get:
+      tags: [System]
+      summary: Get system version info
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: "1.4.4"
+                  buildNumber:
+                    type: integer
+                    example: 161
+                  serverTimestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 130
+        username:
+          type: string
+          example: "3135854620"
+        name:
+          type: string
+          example: "Mike"
+        phoneNumber:
+          type: string
+          example: "3135854620"
+        email:
+          type: string
+          nullable: true
+        photoUrl:
+          type: string
+          nullable: true
+        isAvailable:
+          type: boolean
+          example: false
+        availableUntil:
+          type: string
+          format: date-time
+          nullable: true
+        lastUpdated:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        isPhoneVerified:
+          type: boolean
+          example: true
+
+    FriendWithStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Friend relationship ID
+        userId:
+          type: integer
+          description: Current user's ID
+        friendId:
+          type: integer
+          description: Friend's user ID
+        name:
+          type: string
+          description: Friend's name
+        displayName:
+          type: string
+          nullable: true
+          description: Custom display name
+        phoneNumber:
+          type: string
+          description: Friend's phone number
+        photoUrl:
+          type: string
+          nullable: true
+        isAvailable:
+          type: boolean
+          description: Friend's current availability
+        availableUntil:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [friend, invited, declined, pending]
+          description: Relationship status
+        createdAt:
+          type: string
+          format: date-time
+
+    ScheduledEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        eventType:
+          type: string
+          example: "availability"
+        scheduledTime:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+          example: 30
+        completed:
+          type: boolean
+        cancelled:
+          type: boolean
+        friendsToNotify:
+          type: array
+          items:
+            type: string
+        dayOfWeek:
+          type: string
+          nullable: true
+        isRecurring:
+          type: boolean
+
+    RegisterRequest:
+      type: object
+      required: [phoneNumber, name]
+      properties:
+        phoneNumber:
+          type: string
+          description: User's phone number
+          example: "3135854620"
+        name:
+          type: string
+          description: User's display name
+          example: "John Doe"
+        deviceId:
+          type: string
+          description: Unique device identifier
+          example: "device123"
+        inviterPhoneNumber:
+          type: string
+          description: Phone number of inviting user (optional)
+          example: "2485551234"
+
+    LoginRequest:
+      type: object
+      required: [phoneNumber]
+      properties:
+        phoneNumber:
+          type: string
+          description: User's phone number
+          example: "3135854620"
+        deviceId:
+          type: string
+          description: Unique device identifier
+          example: "device123"
+        username:
+          type: string
+          description: Legacy field for backward compatibility
+        inviterPhoneNumber:
+          type: string
+          description: For invitation flow
+
+    CreateScheduledEventRequest:
+      type: object
+      required: [eventType, scheduledTime]
+      properties:
+        eventType:
+          type: string
+          example: "availability"
+        scheduledTime:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+          default: 30
+        friendsToNotify:
+          type: array
+          items:
+            type: string
+        dayOfWeek:
+          type: string
+        isRecurring:
+          type: boolean
+          default: false
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+        error:
+          type: string
+          description: Error details (optional)
+        debug:
+          type: object
+          description: Debug information (development only)
+
+  securitySchemes:
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: imfree.sid
+      description: Session-based authentication using cookies
+
+security:
+  - SessionAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Users
+    description: User profile and availability management
+  - name: Friends
+    description: Friend relationships and invitations
+  - name: Push Notifications
+    description: Push notification token management
+  - name: System
+    description: System information and health checks

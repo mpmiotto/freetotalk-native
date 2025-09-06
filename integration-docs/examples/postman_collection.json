@@ -1,0 +1,796 @@
+{
+  "info": {
+    "name": "Free to Talk Backend API",
+    "_postman_id": "d4f8b1a2-3c5e-4f7g-8h9i-0j1k2l3m4n5o",
+    "description": "Complete API collection for Free to Talk backend. Includes authentication, user management, friends, and real-time features.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://freetotalk.replit.app",
+      "type": "string"
+    },
+    {
+      "key": "dev_url", 
+      "value": "https://5c03849b-9612-4698-bb85-741691ac2017-00-19y9wfidmrpgj.kirk.replit.dev",
+      "type": "string"
+    },
+    {
+      "key": "app_version",
+      "value": "1.4.4",
+      "type": "string"
+    },
+    {
+      "key": "build_number",
+      "value": "161",
+      "type": "string"
+    },
+    {
+      "key": "test_phone",
+      "value": "3135854620",
+      "type": "string"
+    },
+    {
+      "key": "test_device_id",
+      "value": "postman_test_device_001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Check Phone Exists",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/phone-exists?phoneNumber={{test_phone}}&version={{app_version}}&platform=ios&build={{build_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "phone-exists"],
+              "query": [
+                {
+                  "key": "phoneNumber",
+                  "value": "{{test_phone}}"
+                },
+                {
+                  "key": "version",
+                  "value": "{{app_version}}"
+                },
+                {
+                  "key": "platform", 
+                  "value": "ios"
+                },
+                {
+                  "key": "build",
+                  "value": "{{build_number}}"
+                }
+              ]
+            },
+            "description": "Check if a phone number is already registered in the system."
+          }
+        },
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{test_phone}}\",\n  \"name\": \"Postman Test User\",\n  \"deviceId\": \"{{test_device_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register?version={{app_version}}&platform=ios&build={{build_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"],
+              "query": [
+                {
+                  "key": "version",
+                  "value": "{{app_version}}"
+                },
+                {
+                  "key": "platform",
+                  "value": "ios" 
+                },
+                {
+                  "key": "build",
+                  "value": "{{build_number}}"
+                }
+              ]
+            },
+            "description": "Register a new user with phone number and name."
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{test_phone}}\",\n  \"deviceId\": \"{{test_device_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login?version={{app_version}}&platform=ios&build={{build_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"],
+              "query": [
+                {
+                  "key": "version",
+                  "value": "{{app_version}}"
+                },
+                {
+                  "key": "platform",
+                  "value": "ios"
+                },
+                {
+                  "key": "build", 
+                  "value": "{{build_number}}"
+                }
+              ]
+            },
+            "description": "Authenticate existing user with phone number."
+          }
+        },
+        {
+          "name": "Check Device Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{test_phone}}\",\n  \"deviceId\": \"{{test_device_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/check-device",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "check-device"]
+            },
+            "description": "Check if device requires verification for this phone number."
+          }
+        },
+        {
+          "name": "Send SMS Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{test_phone}}\",\n  \"deviceId\": \"{{test_device_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/send-verification",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "send-verification"]
+            },
+            "description": "Send SMS verification code to phone number."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Destroy current user session."
+          }
+        }
+      ],
+      "description": "Authentication endpoints for user registration, login, and verification."
+    },
+    {
+      "name": "👤 User Management",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/me?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130",
+                  "description": "Fallback for mobile apps"
+                }
+              ]
+            },
+            "description": "Get authenticated user's profile information."
+          }
+        },
+        {
+          "name": "Update Availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isAvailable\": true,\n  \"availableUntil\": \"2025-01-06T20:00:00.000Z\",\n  \"notifyFriends\": [20, 135, 136]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/availability?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "availability"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Update user's availability status with optional expiration and friend notifications."
+          }
+        },
+        {
+          "name": "Set Unavailable",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isAvailable\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/availability?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "availability"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Set user as unavailable."
+          }
+        },
+        {
+          "name": "Get Scheduled Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/scheduled-events?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "scheduled-events"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Get user's scheduled availability events."
+          }
+        },
+        {
+          "name": "Schedule Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"availability\",\n  \"scheduledTime\": \"2025-01-07T15:00:00.000Z\",\n  \"durationMinutes\": 60,\n  \"friendsToNotify\": [\"20\", \"135\"],\n  \"isRecurring\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/scheduled-events?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "scheduled-events"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Schedule future availability with friend notifications."
+          }
+        }
+      ],
+      "description": "User profile and availability management endpoints."
+    },
+    {
+      "name": "👥 Friends Management",
+      "item": [
+        {
+          "name": "Get Friends List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/friends?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Get all friends with their current availability status."
+          }
+        },
+        {
+          "name": "Invite Friend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"2485551234\",\n  \"name\": \"Test Friend\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/friends/invite?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends", "invite"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Send friend invitation via SMS."
+          }
+        },
+        {
+          "name": "Update Friend Details",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Updated Friend Name\",\n  \"photoUrl\": \"https://example.com/photo.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/friends/294?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends", "294"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Update friend's display name and photo URL."
+          }
+        },
+        {
+          "name": "Remove Friend",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/friends/294?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends", "294"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Remove friend relationship."
+          }
+        },
+        {
+          "name": "Get Friend Requests Received",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/friend-requests/received?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friend-requests", "received"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Get incoming friend requests."
+          }
+        },
+        {
+          "name": "Get Friend Requests Sent",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/friend-requests/sent?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friend-requests", "sent"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Get outgoing friend requests."
+          }
+        }
+      ],
+      "description": "Friend relationship management and invitations."
+    },
+    {
+      "name": "🔔 Push Notifications",
+      "item": [
+        {
+          "name": "Register Push Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ExponentPushToken[example_token_here]\",\n  \"deviceId\": \"{{test_device_id}}\",\n  \"platform\": \"ios\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/push/register?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "push", "register"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Register Expo push notification token for the device."
+          }
+        },
+        {
+          "name": "Unregister Push Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ExponentPushToken[example_token_here]\",\n  \"deviceId\": \"{{test_device_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/push/unregister?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "push", "unregister"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Unregister push notification token."
+          }
+        },
+        {
+          "name": "Test Push Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Notification\",\n  \"body\": \"This is a test push notification from Postman\",\n  \"data\": {\n    \"type\": \"test\",\n    \"timestamp\": \"2025-01-06T17:00:00.000Z\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/push/test?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "push", "test"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Send test push notification to user's registered devices."
+          }
+        },
+        {
+          "name": "Get Push Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/push/status?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "push", "status"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Get push notification service status and user's registered tokens."
+          }
+        }
+      ],
+      "description": "Push notification token management and testing."
+    },
+    {
+      "name": "⚙️ System & Admin",
+      "item": [
+        {
+          "name": "Get System Version",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/system/version",
+              "host": ["{{base_url}}"],
+              "path": ["api", "system", "version"]
+            },
+            "description": "Get current system version and build information."
+          }
+        },
+        {
+          "name": "Get Pro Tip",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/settings/pro-tip",
+              "host": ["{{base_url}}"],
+              "path": ["api", "settings", "pro-tip"]
+            },
+            "description": "Get random pro tip for the app."
+          }
+        },
+        {
+          "name": "Get Pending Invitations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/invitations/pending?userId=130",
+              "host": ["{{base_url}}"],
+              "path": ["api", "invitations", "pending"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "130"
+                }
+              ]
+            },
+            "description": "Get pending invitations for the user."
+          }
+        }
+      ],
+      "description": "System information and administrative endpoints."
+    },
+    {
+      "name": "🧪 Testing & Debug",
+      "item": [
+        {
+          "name": "Test SMS Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"{{test_phone}}\",\n  \"message\": \"Test SMS from Postman API collection\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/130/test-notification",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "130", "test-notification"]
+            },
+            "description": "Send test SMS notification (admin/debug feature)."
+          }
+        },
+        {
+          "name": "Debug Version Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/debug/version-info?version={{app_version}}&platform=ios&build={{build_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "debug", "version-info"],
+              "query": [
+                {
+                  "key": "version",
+                  "value": "{{app_version}}"
+                },
+                {
+                  "key": "platform",
+                  "value": "ios"
+                },
+                {
+                  "key": "build",
+                  "value": "{{build_number}}"
+                }
+              ]
+            },
+            "description": "Get detailed version information and compatibility check."
+          }
+        }
+      ],
+      "description": "Testing and debugging endpoints for development."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set version parameters for mobile app simulation",
+          "if (!pm.request.url.query.has('version')) {",
+          "    pm.request.url.query.add({",
+          "        key: 'version',",
+          "        value: pm.collectionVariables.get('app_version')",
+          "    });",
+          "}",
+          "",
+          "// Log request for debugging",
+          "console.log('Making request to:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Response status code is successful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "// Check for JSON response",
+          "pm.test('Response is JSON', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});",
+          "",
+          "// Log response for debugging",
+          "console.log('Response status:', pm.response.status);",
+          "console.log('Response body:', pm.response.text());"
+        ]
+      }
+    }
+  ]
+}
